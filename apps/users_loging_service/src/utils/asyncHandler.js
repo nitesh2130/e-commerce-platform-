@@ -9,6 +9,8 @@ const asyncHandler = (requestHandler) => {
 
 
 
+  /////
+
 // this method is handle request with another syntex
 
 // const asyncHandler = (fn) => async (req, res, next) => {
