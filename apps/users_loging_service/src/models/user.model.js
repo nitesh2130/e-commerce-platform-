@@ -20,6 +20,18 @@ const userSchema = new Schema(
             required: true,
             unique: true,
         },
+        profileImage: {
+            type: true,                           // cloudinary Url
+            required: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
+        refreshToken: {                          // refresh token it's expiry is too long,
+            type: String
+        }
+
     },
     {
         timestamps: true
