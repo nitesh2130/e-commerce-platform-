@@ -16,5 +16,11 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())  // to this we can setup only server is read and delete the cookie-parser 
 
+//routes imports
+import userRoute from "./routes/user.routes.js"
+
+
+//routes declaration
+app.use("/api/v1/users", userRoute);
 
 export default app
