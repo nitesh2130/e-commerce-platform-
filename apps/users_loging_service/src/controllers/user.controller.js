@@ -2,14 +2,24 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
+
+
+
+//this is to generate access token and refresh token
+
+const generateAccessAndRefreshToken = async(userId) => {
+
+}
+
 
 
 //for the  creating the user 
 const userRegister = asyncHandler( async (req, res) => {
 
-    const { fullName, email, phoneNumber, password, refreshToken } = req.body;
+    const { fullName, email, phoneNumber, password } = req.body;
     if(
-        [ fullName, email, password, phoneNumber, refreshToken].some((field) => field?.trim() === "")
+        [ fullName, email, password, phoneNumber ].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All fields are required")
     }
@@ -30,11 +40,15 @@ const userRegister = asyncHandler( async (req, res) => {
         throw new ApiError(400, "profile image is required");
     }
 
-    const profileImage = uploadOncloudinary(profileImagelocalpath);
+    console.log(profileImagelocalpath, "profile image local url ")
+
+
+    const profileImage = await uploadOnCloudinary(profileImagelocalpath);
 
     if(!profileImage) {
         throw new ApiError(400, "profile image is required");
     }
+    
 
     const user = await User.create({
         fullName: fullName,
@@ -44,9 +58,11 @@ const userRegister = asyncHandler( async (req, res) => {
         password: password,
     })
 
-    const createdUser = User.findById(user._id).select(
+    console.log(user, "this is the user at created right now")
+    const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
+    console.log(createdUser, "this is the user 2 nd time")
 
     if(!createdUser) {
         throw new ApiError(500, "Something went wrong on the server while registering the user" );
@@ -88,7 +104,7 @@ const userLogin = asyncHandler( async(req, res) => {
     }
 
     const refreshToken = await genrateRefreshToken(user._id);
-    // const accessToken = await genrateAccessToken({user._id,})
+    // const accessToken = await genrateAccessToken({user._id, fullName, phoneNumber, })
 
     const logedInUser = await User.findById(user._id).select("-password, -refreshToken");
 
@@ -115,9 +131,5 @@ const userLogin = asyncHandler( async(req, res) => {
     // changeCurrentPassword,
     // getCurrentUser,
     // updateAccountDetails,
-    // updateUserAvatar,
-    // updateUserCoverImage,
-    // getUserChannelProfile,
-    // getWatchHistory
-
-export { userRegister}
+    // updateUserprofileImage,
+export { userRegister }
