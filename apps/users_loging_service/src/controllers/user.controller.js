@@ -3,6 +3,8 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 
+
+//for the  creating the user 
 const userRegister = asyncHandler( async (req, res) => {
 
     const { fullName, email, phoneNumber, password, refreshToken } = req.body;
@@ -55,18 +57,55 @@ const userRegister = asyncHandler( async (req, res) => {
     return res.status(201).json(
         new ApiResponse(201, createdUser, "User are register Successfully ")
     )
-
-
-
-
-
-
-
-     res.status(201).json(
-        new ApiResponse(200, "User registered Successfully")
-    )
-
 })
+
+
+
+// for the user login
+
+const userLogin = asyncHandler( async(req, res) => {
+    const { email, phoneNumber, password} = req.body;
+
+    // Checking the email, phoneNumber, password
+    if(
+        [email, phoneNumber, password].some((field) => field?.trim() === "")
+    ) {
+        throw new ApiError(404, "email, phoneNUmber and password is need for the login");
+    }
+
+    const user = findOne({
+        $or: [ {email}, {phoneNumber}]
+    })
+
+    if(!user) {
+        throw new ApiError(404, "email or phoneNumber are not availble");
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
+    
+    if(!isPasswordCorrect) {
+        throw new ApiError(401, "Invalid password");
+    }
+
+    const refreshToken = await genrateRefreshToken(user._id);
+    // const accessToken = await genrateAccessToken({user._id,})
+
+    const logedInUser = await User.findById(user._id).select("-password, -refreshToken");
+
+    const option = {
+        httpOnly: true,
+        secure: true
+    }
+    res
+    .status(200)
+    .cookie("refreshToken", accessToken, option)
+    .json(new ApiResponse(
+        200, {
+            user: logedInUser, accessToken, refreshToken
+        },
+        "user login successfully"
+    ))
+}) 
 
 
     // registerUser,
