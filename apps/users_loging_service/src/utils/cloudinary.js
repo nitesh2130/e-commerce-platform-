@@ -21,7 +21,7 @@ const uploadOnCloudinary = async (localFilePath) => {
         // First do this operation after that perfoam another task
         // Unlink the file from the locally if file is uploaded successfully.
         
-        await fs.unlinkSync(localFilePath)
+         fs.unlinkSync(localFilePath)
         return response.url;
 
     }
