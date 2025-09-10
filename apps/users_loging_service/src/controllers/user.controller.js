@@ -182,9 +182,6 @@ const userLogOut = asyncHandler( async (req, res) => {
 })
 
 
-    // registerUser,
-    // loginUser,
-    // logoutUser,
     // refreshAccessToken,
     // changeCurrentPassword,
     // getCurrentUser,
