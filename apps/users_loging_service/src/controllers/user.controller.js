@@ -6,9 +6,25 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
 
+
 //this is to generate access token and refresh token
 
-const generateAccessAndRefreshToken = async(userId) => {
+const generateAccessAndRefreshToken = async (userId) => {
+    try {
+          const user = await User.findById(userId);
+          const accessToken = await user.generateAccessToken();
+          const refreshToken = user.generateRefreshToken();
+          user.refreshToken = refreshToken;
+
+          await user.save({ validateBeforeSave: false })
+
+          return {accessToken, refreshToken}
+
+        
+    } catch (error) {
+        console.log(error)
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
+    }
 
 }
 
@@ -58,11 +74,10 @@ const userRegister = asyncHandler( async (req, res) => {
         password: password,
     })
 
-    console.log(user, "this is the user at created right now")
+    console.log("password", user.password)
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
-    console.log(createdUser, "this is the user 2 nd time")
 
     if(!createdUser) {
         throw new ApiError(500, "Something went wrong on the server while registering the user" );
@@ -78,9 +93,11 @@ const userRegister = asyncHandler( async (req, res) => {
 
 
 // for the user login
-
-const userLogin = asyncHandler( async(req, res) => {
-    const { email, phoneNumber, password} = req.body;
+const userLogin = asyncHandler( async (req, res) => {
+    console.log( 'this is email');
+    // const { email, phoneNumber, password } = req.body;
+    const { email, phoneNumber, password } = req.body;
+    console.log(email, 'this is email');
 
     // Checking the email, phoneNumber, password
     if(
@@ -89,7 +106,7 @@ const userLogin = asyncHandler( async(req, res) => {
         throw new ApiError(404, "email, phoneNUmber and password is need for the login");
     }
 
-    const user = findOne({
+    const user = await User.findOne({
         $or: [ {email}, {phoneNumber}]
     })
 
@@ -97,14 +114,20 @@ const userLogin = asyncHandler( async(req, res) => {
         throw new ApiError(404, "email or phoneNumber are not availble");
     }
 
-    const isPasswordCorrect = await user.isPasswordCorrect(password);
+    const isPasswordMatch = await user.isPasswordCorrect(password);
+    console.log(isPasswordMatch)
     
-    if(!isPasswordCorrect) {
+    if(!isPasswordMatch) {
         throw new ApiError(401, "Invalid password");
     }
 
-    const refreshToken = await genrateRefreshToken(user._id);
-    // const accessToken = await genrateAccessToken({user._id, fullName, phoneNumber, })
+    const userId = user._id;
+    console.log(userId)
+    const accessAndRefreshToken = await generateAccessAndRefreshToken(userId);
+
+    const { accessToken, refreshToken } = accessAndRefreshToken;
+    console.log("this is accessToken", accessToken );
+    console.log("this is refreshToken", refreshToken );
 
     const logedInUser = await User.findById(user._id).select("-password, -refreshToken");
 
@@ -114,7 +137,8 @@ const userLogin = asyncHandler( async(req, res) => {
     }
     res
     .status(200)
-    .cookie("refreshToken", accessToken, option)
+    .cookie("refreshToken", refreshToken, option)
+    .cookie("accessToken", accessToken, option)
     .json(new ApiResponse(
         200, {
             user: logedInUser, accessToken, refreshToken
@@ -132,4 +156,4 @@ const userLogin = asyncHandler( async(req, res) => {
     // getCurrentUser,
     // updateAccountDetails,
     // updateUserprofileImage,
-export { userRegister }
+export { userRegister, userLogin }
