@@ -148,6 +148,40 @@ const userLogin = asyncHandler( async (req, res) => {
 }) 
 
 
+// LogOut the user
+
+const userLogOut = asyncHandler( async (req, res) => {
+    console.log(req.user._id);
+    const result = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1  //this remove the field from document
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    console.log("result of logOut query");
+    const option = {
+        httpOnly: true,
+        secure: true
+    }
+
+    console.log("abhi ka refresh Token", refreshToken)
+
+    return res
+    .status(200)
+    .clearCookie("accessToken", option)
+    .clearCookie("refreshToken", option)
+    .json(
+        new ApiResponse(200, {}, "User logged Out successfully")
+    )
+})
+
+
     // registerUser,
     // loginUser,
     // logoutUser,
@@ -156,4 +190,4 @@ const userLogin = asyncHandler( async (req, res) => {
     // getCurrentUser,
     // updateAccountDetails,
     // updateUserprofileImage,
-export { userRegister, userLogin }
+export { userRegister, userLogin, userLogOut }
