@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import jwt, { decode, verify } from "jsonwebtoken";
+import { json } from "express";
 
 
 
@@ -259,9 +260,17 @@ const refreshAccessToken = asyncHandler( async (req, res) => {
 
  })
 
+// getCurrentUser
 
-
-    // getCurrentUser,
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200, 
+        req.user,
+        "user details fetched"
+    ))
+})
     // updateAccountDetails,
     // updateUserprofileImage,
 export { userRegister, userLogin, userLogOut, refreshAccessToken, changeCurrentPassword }
