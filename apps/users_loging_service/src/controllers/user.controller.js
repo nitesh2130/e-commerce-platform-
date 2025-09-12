@@ -3,13 +3,14 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import jwt, { decode, verify } from "jsonwebtoken";
 
 
 
 
 //this is to generate access token and refresh token
 
-const generateAccessAndRefreshToken = async (userId) => {
+const generateAccessAndRefreshToken = async (user,_id) => {
     try {
           const user = await User.findById(userId);
           const accessToken = await user.generateAccessToken();
@@ -121,9 +122,7 @@ const userLogin = asyncHandler( async (req, res) => {
         throw new ApiError(401, "Invalid password");
     }
 
-    const userId = user._id;
-    console.log(userId)
-    const accessAndRefreshToken = await generateAccessAndRefreshToken(userId);
+    const accessAndRefreshToken = await generateAccessAndRefreshToken(user._id);
 
     const { accessToken, refreshToken } = accessAndRefreshToken;
     console.log("this is accessToken", accessToken );
@@ -181,8 +180,61 @@ const userLogOut = asyncHandler( async (req, res) => {
     )
 })
 
+ // refreshAccessToken,
 
-    // refreshAccessToken,
+const refreshAccessToken = asyncHandler( (req, res) => {
+    // get the refresh the Refresh token form the request web => (get token to cookie ), App => (get Access Token from body and header ) 
+    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
+
+    if(!incomingRefreshToken) {
+        throw new ApiError(401, "refresh Token is unavailable" )
+    }
+    try {
+        //verify the refresh token
+        const decodeToken = jwt.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        )
+
+        const user = findById(decode?._id)
+
+        if(!user) {
+            throw new ApiError(401, "Invalid refersh token");
+        }
+
+        if(incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(401, "Refresh token is invalid or used ")
+        }
+        const {accessToken, refreshToken } = generateAccessAndRefreshToken(user._id);
+
+        const option = {
+            httpOnly: true,
+            secure: true
+        }
+
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, option)
+        .cookie("refreshToken", refreshToken, option)
+        .json(
+            new ApiResponse(
+                200,
+                {accessToken, refreshToken},
+                "Access token refreshed"
+            )
+        )
+
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invalid refresh token");
+        
+    }
+    
+})
+
+
+
+
+
     // changeCurrentPassword,
     // getCurrentUser,
     // updateAccountDetails,
