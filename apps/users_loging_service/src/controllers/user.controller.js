@@ -4,9 +4,29 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import jwt, { decode, verify } from "jsonwebtoken";
-import { json } from "express";
 
 
+
+
+//delete the image from cloudinary for update the image of
+
+const getPublicIdOfImage = (url) => {
+    const parts = url.split("/")
+    const fileWithExt = parts.pop();
+    const publicId = `${folder}/$`
+}
+
+
+
+
+const getPublicIdFromUrl = (url) => {
+    // Example: https://res.cloudinary.com/demo/image/upload/v1694183574/user_images/avatar_abc123.jpg
+    const parts = url.split("/");
+    const fileWithExt = parts.pop();         // avatar_abc123.jpg
+    const folder = parts.pop();              // user_images
+    const publicId = `${folder}/${fileWithExt.split(".")[0]}`;  // user_images/avatar_abc123
+    return publicId;
+};
 
 
 //this is to generate access token and refresh token
@@ -271,6 +291,84 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         "user details fetched"
     ))
 })
-    // updateAccountDetails,
-    // updateUserprofileImage,
-export { userRegister, userLogin, userLogOut, refreshAccessToken, changeCurrentPassword }
+
+
+//update user details
+
+const updateUserDetails = asyncHandler( async (req, res) => {
+    const {fullName, email, phoneNumber} = req.body;
+     
+    if( fullName || email || phoneNumber ) {
+        throw new ApiError(401, "No data found for the update");
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                fullName: fullName,
+                email: email,
+                phoneNumber: phoneNumber
+            }
+        },
+        {
+            new: true
+        }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, "User details is update successfully")
+    )
+});
+
+
+// updateUserprofileImage,
+
+const updateUserprofileImage = asyncHandler( async (req, res) => {
+    const localFilePath = req.file?.path;
+
+    if(!localFilePath) {
+        throw new ApiError(401, "Profile image is not availabe");
+    }
+
+    // const user = await User.findById(req.user?._id);
+
+
+
+    // This is upload new image on the cloudinary.
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading on avatar")
+        
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                avatar: avatar.url
+            }
+        },
+        {new: true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Avatar image updated successfully")
+    )
+
+
+
+
+
+
+
+
+})
+
+
+export { userRegister, userLogin, userLogOut, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateUserDetails, updateUserprofileImage }
