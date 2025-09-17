@@ -3,30 +3,41 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
-import jwt, { decode, verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 
 
 
-//delete the image from cloudinary for update the image of
-
+//get the public id from the url of the image
 const getPublicIdOfImage = (url) => {
     const parts = url.split("/")
     const fileWithExt = parts.pop();
-    const publicId = `${folder}/$`
+    const publicId = fileWithExt.split(".")[0]
+    return publicId;
+}
+
+//delete the image from cloudinary
+const deleteFromCloudinary = async (public_id) => {
+    try {
+        const result = await uploadOnCloudinary.uploader.destroy(public_id);
+        console.log("Delete image from the cloudinary", result);
+    } catch (error) {
+        console.log("error to delete the image from cloudinary");  
+    }
+
 }
 
 
 
 
-const getPublicIdFromUrl = (url) => {
-    // Example: https://res.cloudinary.com/demo/image/upload/v1694183574/user_images/avatar_abc123.jpg
-    const parts = url.split("/");
-    const fileWithExt = parts.pop();         // avatar_abc123.jpg
-    const folder = parts.pop();              // user_images
-    const publicId = `${folder}/${fileWithExt.split(".")[0]}`;  // user_images/avatar_abc123
-    return publicId;
-};
+// const getPublicIdFromUrl = (url) => {
+//     // Example: https://res.cloudinary.com/demo/image/upload/v1694183574/user_images/avatar_abc123.jpg
+//     const parts = url.split("/");
+//     const fileWithExt = parts.pop();         // avatar_abc123.jpg
+//     const folder = parts.pop();              // user_images
+//     const publicId = `${folder}/${fileWithExt.split(".")[0]}`;  // user_images/avatar_abc123
+//     return publicId;
+// };
 
 
 //this is to generate access token and refresh token
@@ -82,6 +93,7 @@ const userRegister = asyncHandler( async (req, res) => {
 
 
     const profileImage = await uploadOnCloudinary(profileImagelocalpath);
+    console.log("profileImage", profileImage);
 
     if(!profileImage) {
         throw new ApiError(400, "profile image is required");
@@ -327,44 +339,47 @@ const updateUserDetails = asyncHandler( async (req, res) => {
 // updateUserprofileImage,
 
 const updateUserprofileImage = asyncHandler( async (req, res) => {
-    const localFilePath = req.file?.path;
 
-    if(!localFilePath) {
-        throw new ApiError(401, "Profile image is not availabe");
+    const user = await User.findById(req.user?._id);
+    const public_id = getPublicIdOfImage(user.profileImage);
+    console.log(public_id);
+
+    if(!public_id) {
+        throw new ApiError(401, "not have image public Id");
     }
 
-    // const user = await User.findById(req.user?._id);
-
-
+    const response = await deleteFromCloudinary(public_id);
 
     // This is upload new image on the cloudinary.
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
+    const profileImagelocalpath = req.files?.profileImage[0]?.path;
 
-    if (!avatar.url) {
-        throw new ApiError(400, "Error while uploading on avatar")
-        
+    if(!profileImagelocalpath) {
+        throw new ApiError(400, "profile image is required");
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
+    console.log(profileImagelocalpath, "profile image local url ")
+
+
+    const profileImage = await uploadOnCloudinary(profileImagelocalpath);
+    console.log("profileImage", profileImage);
+
+    const userUpdated = await User.findByIdAndUpdate(
+        user._id,
         {
-            $set:{
-                avatar: avatar.url
+            $set: {
+                profileImage: profileImage,
             }
         },
-        {new: true}
-    ).select("-password")
+        {
+            new: true
+        }
+    ).select("password")
 
     return res
     .status(200)
     .json(
-        new ApiResponse(200, user, "Avatar image updated successfully")
-    )
-
-
-
-
-
+        new ApiResponse(200, userUpdated, "user profile is updated successfully")
+    );
 
 
 
