@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_new_container
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=shoping_password
+      - POSTGRES_DB=shoping_db
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=super@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    depends_on:
+      - db
+    ports:
+      - "5050:80"    
+    networks:
+      - mynetwork  
+
+networks:
+  mynetwork:
+    driver: bridge
