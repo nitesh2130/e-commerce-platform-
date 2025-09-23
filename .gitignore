@@ -39,10 +39,14 @@ bower_components
 build/Release
 
 # Dependency directories
-**/node_modules
-*/node_modules
-./node_modules/
-# ./node_modules/.package-lock.json
+# Ignore all node_modules everywhere
+node_modules/
+**/node_modules/
+# Ignore all node_modules everywhere
+node_modules/
+**/node_modules/
+
+
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
