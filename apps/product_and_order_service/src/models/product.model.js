@@ -11,19 +11,19 @@ export const createProductModel = async (sequelize) => {
             allowNull: false
         },
         price: {
-            type: DataTypes.STRING,
+            type: DataTypes.NUMBER,
             allowNull: false
         },
         available_stock_quantity: {
-            type: DataTypes.STRING,
+            type: DataTypes.NUMBER,
             allowNull: false
         },
         total_stock_quantity: {
-            type: DataTypes.STRING,
+            type: DataTypes.NUMBER,
             allowNull: false
         },
         category_id: {
-            type: DataTypes.STRING,
+            type: DataTypes.NUMBER,
             allowNull: false
         },
         brand: {
@@ -31,7 +31,7 @@ export const createProductModel = async (sequelize) => {
             allowNull: false
         },
         rating: {
-            type: DataTypes.STRING,
+            type: DataTypes.NUMBER,
             allowNull: false
         }
     })
