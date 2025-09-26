@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
 export const createCartItemModel = async (sequelize) => {
-    const Cart_items = sequelize.define('Cart_items', {
+    const CartItem = sequelize.define('CartItems', {
         id: { 
             type: DataTypes.INTEGER, 
             autoIncrement: true, 
