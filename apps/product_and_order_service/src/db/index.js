@@ -50,4 +50,4 @@ OrderItem.belongsTo(Order, { foreignKey: "orderId"})
 
 
 
-export default connectDB;
+export { connectDB, Product, Cart, CartItem, Order, OrderItem, Categories };

@@ -10,6 +10,10 @@ export const createProductModel = async (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        productImage: {
+            type: String,                           // cloudinary Url
+            required: true,
+        },
         price: {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false

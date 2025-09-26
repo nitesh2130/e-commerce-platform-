@@ -31,10 +31,8 @@ const uploadOnCloudinary = async (localFilePath) => {
 
     }
     catch (error) {
-        console.log(error, " this is error ")
-        console.log("ab hum catch me ha ")
         // const checkvar = fs.unlinkSync(localFilePath) //remove the locally if file is not upload on the cloudinary. 
-        console.log(checkvar, "  *      THIS IS RESULT FILE DELETE OR NOT");
+        console.log("image is not upload ", error.message);
         return null;
     }
 }
