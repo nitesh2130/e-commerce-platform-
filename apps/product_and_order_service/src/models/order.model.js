@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
-export const createOrderModel = async (sequelize) => {
-    const Order = sequelize.define('Orders', {
+export const createOrderModel = (sequelize) => {
+    const Order = sequelize.define('orders', {
         userId: {
             type: DataTypes.NUMBER,
             allowNull: false
@@ -17,4 +17,5 @@ export const createOrderModel = async (sequelize) => {
         }
 
     })
+    return Order;
 }

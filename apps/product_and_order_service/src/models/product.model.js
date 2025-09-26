@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
 export const createProductModel = async (sequelize) => {
-    const Product = sequelize.define('Products', {
+    const Product = sequelize.define('products', {
         productName: {
             type: DataTypes.STRING,
             allowNull: false
