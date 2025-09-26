@@ -12,9 +12,8 @@ export const createOrderModel = async (sequelize) => {
 
         },
         status: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.STRING,
             allowNull: false
-
         }
 
     })

@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
-export const createProductModel = async (sequelize) => {
-    const Student = sequelize.define('Students', {
+export const createCategoriesModel = async (sequelize) => {
+    const Categories = sequelize.define('Categories', {
         name: {
             type: DataTypes.STRING,
             allowNull: false

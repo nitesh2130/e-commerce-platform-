@@ -1,18 +1,24 @@
 import { DataTypes } from "sequelize";
 
-export const createProductModel = async (sequelize) => {
-    const Student = sequelize.define('Students', {
+export const createCartItemModel = async (sequelize) => {
+    const Cart_items = sequelize.define('Cart_items', {
+        id: { 
+            type: DataTypes.INTEGER, 
+            autoIncrement: true, 
+            primaryKey: true 
+        },
         cartId: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         productId: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         count: {
-            type: DataTypes.NUMBER,
-            allowNull: false
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            default: 1,
         }
     })
 }

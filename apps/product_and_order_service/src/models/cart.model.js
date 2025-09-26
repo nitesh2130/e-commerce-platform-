@@ -1,9 +1,10 @@
 import { DataTypes } from "sequelize";
 
-export const createProductModel = async (sequelize) => {
-    const Student = sequelize.define('Students', {
+export const createCartModel = async (sequelize) => {
+    const Cart
+     = sequelize.define('Carts', {
         userId: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNUll: false
         }
     })

@@ -1,21 +1,21 @@
 import { DataTypes } from "sequelize";
 
-export const createProductModel = async (sequelize) => {
-    const Student = sequelize.define('Students', {
+export const createOrderItemModelModel = async (sequelize) => {
+    const Order_item = sequelize.define('Order_items', {
         orderId: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         productId: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         Quantity: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         price: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false
         }
 

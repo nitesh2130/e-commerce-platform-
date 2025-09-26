@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
 export const createProductModel = async (sequelize) => {
-    const Student = sequelize.define('Students', {
+    const Product = sequelize.define('Products', {
         productName: {
             type: DataTypes.STRING,
             allowNull: false
@@ -11,19 +11,19 @@ export const createProductModel = async (sequelize) => {
             allowNull: false
         },
         price: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false
         },
         available_stock_quantity: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         total_stock_quantity: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         category_id: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         brand: {
@@ -31,7 +31,7 @@ export const createProductModel = async (sequelize) => {
             allowNull: false
         },
         rating: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.DECIMAL(10, 1),
             allowNull: false
         }
     })

@@ -16,4 +16,12 @@ const connectDB = async () => {
      }
 }
 
+// Initialize models for the table
+const Product = createProductModel( sequelize );
+const Cart = createCartModel( sequelize );
+const Cart_item = createCartItemModel( sequelize );
+const Order = createOrderModel( sequelize );
+const Order_item = createOrder_itemModelModel( sequelize );
+const Categories = createCategoriesModel( sequelize );
+
 export default connectDB;
