@@ -34,7 +34,18 @@ const addProduct = asyncHandler( async(req, res) => {
     if( !product ) {
         throw new ApiError( 50, " Somthing went wrong, when at created at user ");
     }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200, {
+            product
+        },
+        "user login successfully"
+    ))
 })
+
+
 
 
 

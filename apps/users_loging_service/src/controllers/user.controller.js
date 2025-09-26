@@ -167,7 +167,7 @@ const userLogin = asyncHandler( async (req, res) => {
         httpOnly: true,
         secure: true
     }
-    res
+    return res
     .status(200)
     .cookie("refreshToken", refreshToken, option)
     .cookie("accessToken", accessToken, option)
