@@ -1,3 +1,4 @@
+import { ApiResponse } from "../../../users_loging_service/src/utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../../../users_loging_service/src/utils/cloudinary.js";
 import { Product } from "../db/index.js"
 import { ApiError } from "../utils/ApiError.js";
@@ -46,9 +47,48 @@ const addProduct = asyncHandler( async(req, res) => {
 })
 
 
+const updateProduct = asyncHandler( async (req, res) => {
+    const { id } = req.params;
+    const { productName, description, price, brand, category_id, total_stock_quantity } = req.body;
+
+    if( !productName && !description && !price && !brand && !category_id && !total_stock_quantity ) {
+        throw new ApiError( 404, "Atleast one feild are required to update");
+    }
+
+    const product = await Product.findById(id);
+    if(!product) {
+        throw new ApiError( 404, "product are not available ");
+    }
+
+    const updatedProduct = await product.update({
+        productName,
+        description,
+        price,
+        brand,
+        category_id,
+        total_stock_quantity
+    })
+
+    if( !updatedProduct ) {
+        throw new ApiError(500, "product is not update, Somthing went wrong");
+    }
+
+    return res
+    .status(200)
+    .json(
+       new ApiResponse(
+        200, {
+            updatedProduct
+        },
+        "Product update is successfully",
+       )
+    )
+})
 
 
 
 
 
-export { addProduct, }
+
+
+export { addProduct, updateProduct }
