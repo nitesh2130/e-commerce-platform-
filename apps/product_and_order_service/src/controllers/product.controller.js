@@ -175,4 +175,32 @@ const updateProductImage = asyncHandler(async (req, res) => {
     );
 });
 
-export { addProduct, updateProduct, updateProductImage };
+const deleteProduct = asyncHandler(async (req, res) => {
+  const id = req.params?.id;
+  if (!id) {
+    throw new ApiError(404, "product id is not found");
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    throw new ApiError(404, "product is not found in the db");
+  }
+
+  await product.destroy();
+  console.log("product is deleted successfully");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "product deleted successfully"));
+});
+
+export {
+  addProduct,
+  updateProduct,
+  updateProductImage,
+  deleteProduct,
+  getProductById,
+  getProductByCategories,
+  getProductToName,
+  getProductToFillter,
+};
