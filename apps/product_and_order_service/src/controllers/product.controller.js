@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import { ApiResponse } from "../../../users_loging_service/src/utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../../../users_loging_service/src/utils/cloudinary.js";
 import { Product } from "../db/index.js";
@@ -194,6 +195,63 @@ const deleteProduct = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "product deleted successfully"));
 });
 
+const getProductById = asyncHandler(async (req, res) => {
+  const id = req.params?.id;
+  if (!id) {
+    throw new ApiError(404, "product id is not found");
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    throw new ApiError(404, "product is not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, product, "get product information successfully")
+    );
+});
+
+//get the product to the name search
+const getProductToName = asyncHandler(async (req, res) => {
+  const { productName } = req.body;
+  if (!productName) {
+    throw new ApiError(404, "product Name is not found");
+  }
+
+  const products = await Product.findAll({
+    where: {
+      productName: {
+        [Op.iLike]: `%${productName}%`,
+      },
+    },
+  });
+
+  if (!product) {
+    throw new ApiError(404, "somthing went wrong , Data not found");
+  }
+
+  const product = await Product.find;
+  return res
+    .status(200)
+    .json(new ApiResponse(200, products, "data is successfully"));
+});
+
+//get the product to the categories
+const getProductByCategories = asyncHandler(async (req, res) => {
+  return res.status(200).json(new ApiResponse(200, "data is successfully"));
+});
+
+// get the products with fillter price, categories
+const getProductToFillter = asyncHandler(async (req, res) => {
+  return res.status(200).json(new ApiResponse(200, "data is successfully"));
+});
+
+const getInitialProduct = asyncHandler(async (req, res) => {
+  return res.status(200).json(new ApiResponse(200, "data is successfully"));
+});
+
 export {
   addProduct,
   updateProduct,
@@ -203,4 +261,5 @@ export {
   getProductByCategories,
   getProductToName,
   getProductToFillter,
+  getInitialProduct,
 };
