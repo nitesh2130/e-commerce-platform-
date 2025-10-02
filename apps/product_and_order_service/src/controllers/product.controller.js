@@ -215,17 +215,37 @@ const getProductById = asyncHandler(async (req, res) => {
 
 //get the product to the name search
 const getProductToName = asyncHandler(async (req, res) => {
-  const { productName } = req.body;
-  if (!productName) {
+  const { productName, brand, minPrice, maxprice } = req.body;
+  if (!productName || !brand || !minPrice || !maxprice) {
     throw new ApiError(404, "product Name is not found");
   }
 
+  // this is hold all condition those we want to apply on the time of fetch the data to Database.
+  let whereClause = {};
+
+  // filter by name
+  if (productName) {
+    whereClause.productName = { [Op.iLike]: `%${productName}%` };
+  }
+
+  // filter by brand
+  if (brand) {
+    whereClause.brand = { [Op.iLike]: `%${brand}%` };
+  }
+
+  // filter by price
+  if (minPrice || maxprice) {
+    whereClause.price = {};
+    if (minPrice) whereClause.price[Op.gte] = parseFloat(minPrice);
+    if (maxPrice) whereClause.price[Op.lte] = parseFloat(maxprice);
+  }
+
+  if (!productName) {
+  }
+
   const products = await Product.findAll({
-    where: {
-      productName: {
-        [Op.iLike]: `%${productName}%`,
-      },
-    },
+    where: whereClause,
+    order: [["price", "ASC"]],
   });
 
   if (!product) {
