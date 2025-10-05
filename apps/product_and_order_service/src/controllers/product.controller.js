@@ -1,7 +1,7 @@
 import { where } from "sequelize";
 import { ApiResponse } from "../../../users_loging_service/src/utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../../../users_loging_service/src/utils/cloudinary.js";
-import { Product } from "../db/index.js";
+import { Categories, Product } from "../db/index.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -215,7 +215,7 @@ const getProductById = asyncHandler(async (req, res) => {
 
 //get the product to the name search
 const getProductToName = asyncHandler(async (req, res) => {
-  const { productName, brand, minPrice, maxprice } = req.body;
+  const { productName, brand, minPrice, maxprice, page, limit } = req.body;
   if (!productName || !brand || !minPrice || !maxprice) {
     throw new ApiError(404, "product Name is not found");
   }
@@ -240,11 +240,16 @@ const getProductToName = asyncHandler(async (req, res) => {
     if (maxPrice) whereClause.price[Op.lte] = parseFloat(maxprice);
   }
 
-  if (!productName) {
-  }
+  // setup pagination
+  const pageNum = parseInt(page);
+  const pageSize = parseInt(limit);
+  const offset = (pageNum - 1) * pageSize;
 
+  //apply all condition on the DB fetch,
   const products = await Product.findAll({
     where: whereClause,
+    limit: pageSize,
+    offset: offset,
     order: [["price", "ASC"]],
   });
 
@@ -258,18 +263,40 @@ const getProductToName = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, products, "data is successfully"));
 });
 
-//get the product to the categories
-const getProductByCategories = asyncHandler(async (req, res) => {
-  return res.status(200).json(new ApiResponse(200, "data is successfully"));
-});
+// get the all categories for the data showing
+// const getProductByCategories = asyncHandler(async (req, res) => {
 
-// get the products with fillter price, categories
-const getProductToFillter = asyncHandler(async (req, res) => {
-  return res.status(200).json(new ApiResponse(200, "data is successfully"));
-});
+//   const
+//   return res.status(200).json(new ApiResponse(200, "data is successfully"));
+// });
 
 const getInitialProduct = asyncHandler(async (req, res) => {
-  return res.status(200).json(new ApiResponse(200, "data is successfully"));
+  // To get categories data
+  const categories = await Categories.findAll({
+    limit: 10,
+    attributes: ["id", "name", "categoriesImage"],
+  });
+
+  // To get product data
+  const products = await Product.findAll({
+    limit: 10,
+    attributes: [
+      "id",
+      "productName",
+      "productImage",
+      "brand",
+      "rating",
+      "price",
+    ],
+  });
+
+  if (!categories || products) {
+    throw new ApiError(500, "Somthing went wromg");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, categories, products, "data is successfully"));
 });
 
 export {
@@ -278,8 +305,7 @@ export {
   updateProductImage,
   deleteProduct,
   getProductById,
-  getProductByCategories,
+  // getProductByCategories,
   getProductToName,
-  getProductToFillter,
   getInitialProduct,
 };
